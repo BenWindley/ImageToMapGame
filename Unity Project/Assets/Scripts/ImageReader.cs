@@ -9,15 +9,18 @@ public static class ImageReader
         VOID,
         WALL,
         PACSPAWN,
-        GHOSTSPAWN
+        GHOSTSPAWN,
+        PELLET,
+        POWERPELLET
     }
 
     public static types[] GetImageData(
         Texture2D image,
-        Color void_col,
         Color wall_col,
         Color pac_col,
-        Color ghost_col)
+        Color ghost_col,
+        Color pellet_col,
+        Color power_pellet_col)
     {
         types[] image_data = new types[image.width * image.height];
 
@@ -25,11 +28,7 @@ public static class ImageReader
         {
             for(int x = 0; x < image.width; ++x)
             {
-                if(image.GetPixel(x,y) == void_col)
-                {
-                    image_data[x + y * image.width] = types.VOID;
-                }
-                else if(image.GetPixel(x, y) == wall_col)
+                if(image.GetPixel(x, y) == wall_col)
                 {
                     image_data[x + y * image.width] = types.WALL;
                 }
@@ -41,10 +40,16 @@ public static class ImageReader
                 {
                     image_data[x + y * image.width] = types.GHOSTSPAWN;
                 }
+                else if (image.GetPixel(x, y) == pellet_col)
+                {
+                    image_data[x + y * image.width] = types.PELLET;
+                }
+                else if (image.GetPixel(x, y) == power_pellet_col)
+                {
+                    image_data[x + y * image.width] = types.POWERPELLET;
+                }
                 else
                 {
-                    Debug.Log("Unrecognised Colour");
-
                     image_data[x + y * image.width] = types.VOID;
                 }
             }

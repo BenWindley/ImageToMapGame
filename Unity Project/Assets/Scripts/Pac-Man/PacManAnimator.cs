@@ -20,6 +20,12 @@ public class PacManAnimator : MonoBehaviour
     public List<Sprite> down_sprites;
     public List<Sprite> right_sprites;
 
+    public List<Sprite> death_sprites;
+
+    public bool dead = false;
+    public float dead_counter = 0.0f;
+    public float dead_speed = 1.0f;
+
     public bool alt_sprite = false;
     public bool moving = false;
 
@@ -28,24 +34,56 @@ public class PacManAnimator : MonoBehaviour
 
     public Directions direction = Directions.LEFT;
 
+    private AudioSource audio_source;
+    public AudioClip death_clip;
+
     void Start ()
     {
         sprite_renderer = GetComponent<SpriteRenderer>();
+        audio_source = GetComponent<AudioSource>();
 	}
+
+    public void PlayDeath()
+    {
+        dead = true;
+        moving = false;
+
+        audio_source.Stop();
+        audio_source.clip = death_clip;
+        audio_source.loop = false;
+        audio_source.Play();
+    }
 	
 	void LateUpdate ()
     {
+        if(dead)
+        {
+            dead_counter += Time.deltaTime * dead_speed;
+            sprite_renderer.sprite = death_sprites[Mathf.Clamp((int) Mathf.Floor(dead_counter), 0, death_sprites.Count - 1)];
+
+            return;
+        }
         if(moving)
         {
             animation_timer += Time.deltaTime * animation_speed;
 
             alt_sprite = Mathf.RoundToInt(Mathf.PingPong(animation_timer, 1.0f)) == 1;
+
+            if(!audio_source.isPlaying)
+            {
+                audio_source.Play();
+            }
         }
         else
         {
             animation_timer = 0;
 
             alt_sprite = false;
+
+            if (audio_source.isPlaying)
+            {
+                audio_source.Stop();
+            }
         }
 
         switch (direction)

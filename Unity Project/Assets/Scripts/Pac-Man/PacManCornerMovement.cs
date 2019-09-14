@@ -22,6 +22,8 @@ public class PacManCornerMovement : MonoBehaviour
 
     public float speed = 1.0f;
 
+    public bool dead = false;
+
     private void Start()
     {
         animator = GetComponent<PacManAnimator>();
@@ -29,6 +31,9 @@ public class PacManCornerMovement : MonoBehaviour
 
     void Update ()
     {
+        if (dead)
+            return;
+
         ChangeDirection();
 
         if(next_direction != current_direction)
@@ -84,7 +89,7 @@ public class PacManCornerMovement : MonoBehaviour
 
     private bool IsOnTile()
     {
-        if(Vector3.Distance(transform.position + GetDirectionOffset(current_direction), RoundPosition()) < Time.deltaTime * speed)
+        if(Vector3.Distance(transform.position, RoundPosition()) < Time.deltaTime * speed)
         {
             return true;
         }
@@ -157,6 +162,12 @@ public class PacManCornerMovement : MonoBehaviour
         Vector3 map_offset = new Vector3(generator.map.width / 2.0f, generator.map.height / 2.0f, 0.0f);
 
         Vector3 position = RoundPosition() + map_offset - offset;
+
+        position = new Vector3(
+            (position.x + generator.map.width) % generator.map.width,
+            (position.y + generator.map.height) % generator.map.height,
+            position.z
+            );
 
         return position;
     }

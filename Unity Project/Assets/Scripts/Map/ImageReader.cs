@@ -14,7 +14,7 @@ public static class ImageReader
         POWERPELLET
     }
 
-    public static types[] GetImageData(
+    public static types[,] GetImageData(
         Texture2D image,
         Color wall_col,
         Color pac_col,
@@ -22,7 +22,7 @@ public static class ImageReader
         Color pellet_col,
         Color power_pellet_col)
     {
-        types[] image_data = new types[image.width * image.height];
+        types[,] image_data = new types[image.width, image.height];
 
         for(int y = 0; y < image.height; ++y)
         {
@@ -30,27 +30,27 @@ public static class ImageReader
             {
                 if(image.GetPixel(x, y) == wall_col)
                 {
-                    image_data[x + y * image.width] = types.WALL;
+                    image_data[x, y] = types.WALL;
                 }
                 else if (image.GetPixel(x, y) == pac_col)
                 {
-                    image_data[x + y * image.width] = types.PACSPAWN;
+                    image_data[x, y] = types.PACSPAWN;
                 }
                 else if (image.GetPixel(x, y) == ghost_col)
                 {
-                    image_data[x + y * image.width] = types.GHOSTSPAWN;
+                    image_data[x, y] = types.GHOSTSPAWN;
                 }
                 else if (image.GetPixel(x, y) == pellet_col)
                 {
-                    image_data[x + y * image.width] = types.PELLET;
+                    image_data[x, y] = types.PELLET;
                 }
                 else if (image.GetPixel(x, y) == power_pellet_col)
                 {
-                    image_data[x + y * image.width] = types.POWERPELLET;
+                    image_data[x, y] = types.POWERPELLET;
                 }
                 else
                 {
-                    image_data[x + y * image.width] = types.VOID;
+                    image_data[x, y] = types.VOID;
                 }
             }
         }

@@ -94,7 +94,6 @@ public class PacManMovement : MonoBehaviour
         {
             // Gameover
 
-            GetComponent<PacManStatus>().dead = true;
             dead = true;
             animator.moving = false;
         }

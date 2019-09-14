@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class WallResprite : MonoBehaviour
 {
+    public bool inside;
+
     public void RecalculateWalls()
     {
         bool up = CheckDirection(Vector3.up);
@@ -24,8 +26,12 @@ public class WallResprite : MonoBehaviour
     {
         bool result = Physics.Raycast(transform.position, dir, 1.0f);
 
-        if (!Physics.Raycast(transform.position, dir))
+        RaycastHit info;
+
+        if (!Physics.Raycast(transform.position, dir, out info) && !inside)
+        {
             result = true;
+        }
 
         return result;
     }

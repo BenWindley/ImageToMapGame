@@ -10,6 +10,10 @@ public class PowerPellet : MonoBehaviour
         {
             // Change to power mode
             // Set ghosts to run
+            foreach (GameObject ghost in GameObject.FindGameObjectsWithTag("Ghost"))
+            {
+                ghost.GetComponent<GhostMovement>().Run();
+            }
             Destroy(gameObject);
         }
     }

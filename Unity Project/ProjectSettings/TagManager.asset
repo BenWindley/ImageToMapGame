@@ -10,6 +10,8 @@ TagManager:
   - Generator
   - Pellet
   - Power Pellet
+  - Void
+  - Spawn
   layers:
   - Default
   - TransparentFX

@@ -17,6 +17,8 @@ public class MapGenerator : MonoBehaviour
     public GameObject wall_prefab;
     public GameObject pellet_prefab;
     public GameObject power_pellet_prefab;
+	public GameObject ghost_spawn;
+    public GameObject void_prefab;
 
     public List<GameObject> walls;
 
@@ -73,14 +75,29 @@ public class MapGenerator : MonoBehaviour
                         GameObject.FindGameObjectWithTag("Pac-Man").GetComponent<PacManCornerMovement>().offset;
                     break;
                 case ImageReader.types.GHOSTSPAWN:
+					GameObject spawn = Instantiate(ghost_spawn, position, Quaternion.identity, transform);
 
-                    break;
+					foreach (GameObject ghost in GameObject.FindGameObjectsWithTag("Ghost"))
+					{
+						if (ghost.GetComponent<GhostMovement>().spawn_location == Vector3.zero)
+						{
+							ghost.transform.position = position;
+							ghost.GetComponent<GhostMovement>().spawn_location = spawn.transform.position + offset;
+						} 
+					}
+
+					break;
                 case ImageReader.types.PELLET:
                     Instantiate(pellet_prefab, position, Quaternion.identity, transform);
                     break;
                 case ImageReader.types.POWERPELLET:
                     Instantiate(power_pellet_prefab, position, Quaternion.identity, transform);
                     break;
+            }
+
+            if (types_array[x, y] != ImageReader.types.WALL)
+            {
+                Instantiate(void_prefab, position, Quaternion.identity, transform);
             }
         }
 

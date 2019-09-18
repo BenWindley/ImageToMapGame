@@ -171,4 +171,39 @@ public class PacManCornerMovement : MonoBehaviour
 
         return position;
     }
+
+    public Vector2 GetTileInFront(int lead = 2)
+    {
+        Vector3 direction = GetDirectionOffset(current_direction).normalized;
+
+        Debug.Log(direction);
+
+        Vector3 position = GetCurrentTile();
+
+        if (current_direction == Directions.NONE)
+        {
+            return position;
+        }
+
+        int i;
+
+        for(i = 0; i < lead; ++i)
+        {
+            bool is_free = false;
+
+            foreach(GameObject v in GameObject.FindGameObjectsWithTag("Void"))
+            {
+                if ((Vector2) v.transform.position == (Vector2) (position + direction * i))
+                    is_free = true;
+            }
+
+            if (!is_free)
+                break;
+        }
+
+        MapGenerator generator = GameObject.FindGameObjectWithTag("Generator").GetComponent<MapGenerator>();
+        Vector3 map_offset = new Vector3(generator.map.width / 2.0f, generator.map.height / 2.0f, 0.0f);
+
+        return (direction * i) + position;
+    }
 }

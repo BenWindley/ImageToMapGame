@@ -43,7 +43,12 @@ public class Pathfinder : MonoBehaviour
 
         if(!traversable_map[(int)current_node.position.x, (int)current_node.position.y])
         {
-            Debug.Log("Ghost inside wall");
+            Debug.Log("Ghost is inside wall");
+            return Vector2.zero;
+        }
+        if(!traversable_map[(int)destination.x, (int)destination.y])
+        {
+            Debug.Log("Destination inside wall");
             return Vector2.zero;
         }
 

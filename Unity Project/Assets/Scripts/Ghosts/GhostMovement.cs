@@ -27,9 +27,13 @@ public class GhostMovement : MonoBehaviour
     private Vector3 map_offset = Vector3.zero;
     private MapGenerator generator;
     private Pathfinder path;
+    private Score score;
 
     private PacManCornerMovement pac_man;
+    private GhostAnimator anim;
 
+    public float activation_timer = 0.0f;
+    public int pinky_steps = 2;
     public float speed = 1.0f;
     public float death_speed = 2.0f;
     private float initial_speed;
@@ -50,12 +54,12 @@ public class GhostMovement : MonoBehaviour
     {
         state = State.CHASE;
         speed = initial_speed;
-        GetComponent<GhostAnimator>().scared = false;
+        anim.scared = false;
     }
 
     public void Die()
     {
-        GetComponent<GhostAnimator>().dead = true;
+        anim.dead = true;
         GetComponent<BoxCollider>().enabled = false;
 
         CancelInvoke("StopRun");
@@ -70,17 +74,30 @@ public class GhostMovement : MonoBehaviour
         generator = GameObject.FindGameObjectWithTag("Generator").GetComponent<MapGenerator>();
         path = GameObject.FindGameObjectWithTag("Generator").GetComponent<Pathfinder>();
         pac_man = GameObject.FindGameObjectWithTag("Pac-Man").GetComponent<PacManCornerMovement>();
+        anim = GetComponent<GhostAnimator>();
+        score = Camera.main.GetComponent<Score>();
 
         initial_speed = speed;
         scatter_destination = GetRandomFreeTile();
     }
 
-    void Update ()
+    void Update()
     {
+        if (Time.time < activation_timer)
+        {
+            return;
+        }
         switch (state)
         {
             case State.SCATTER:
-
+                if (transform.position == destination)
+                {
+                    destination = CalculateDestination(scatter_destination);
+                }
+                if (destination == scatter_destination - map_offset)
+                {
+                    state = State.CHASE;
+                }
                 break;
             case State.CHASE:
                 switch (type)
@@ -110,7 +127,7 @@ public class GhostMovement : MonoBehaviour
                         // Goes two spaces in front of pac-man
                         if (transform.position == destination)
                         {
-                            destination = CalculateDestination(pac_man.GetTileInFront());
+                            destination = CalculateDestination(pac_man.GetCurrentTile(), true);
                         }
                         break;
                     case Type.CLYDE:
@@ -144,9 +161,9 @@ public class GhostMovement : MonoBehaviour
                 if(transform.position == destination)
                 {
                     speed = initial_speed;
+                    anim.scared = false;
+                    anim.dead = false;
                     GetComponent<BoxCollider>().enabled = true;
-                    GetComponent<GhostAnimator>().scared = false;
-                    GetComponent<GhostAnimator>().dead = false;
 
                     state = State.CHASE;
                 }
@@ -156,11 +173,29 @@ public class GhostMovement : MonoBehaviour
         transform.position = Vector3.MoveTowards(transform.position, destination, Time.deltaTime * speed);
     }
 
-    private Vector3 CalculateDestination(Vector3 target, bool can_go_backwards = true)
+    private Vector3 CalculateDestination(Vector3 target, bool check_in_front = false)
     {
-        return (Vector3)path.CalculateNextMove(transform.position + generator.offset, target) -
-               generator.offset +
-               new Vector3(0, 0, transform.position.z);
+        Vector3 move;
+
+        if (check_in_front)
+        {
+            move = path.CalculateNextMoveInFrontOfTarget(
+                transform.position + generator.offset, target, (Pathfinder.Directions)pac_man.current_direction, pinky_steps
+                );
+
+            if(move == Vector3.zero)
+            {
+                move = path.CalculateNextMove(transform.position + generator.offset, target);
+            }
+        }
+        else
+        { 
+            move = path.CalculateNextMove(transform.position + generator.offset, target);
+        }
+
+        move -= generator.offset + new Vector3(0, 0, transform.position.z);
+
+        return move;
     }
 
     private Vector3 GetRandomFreeTile()

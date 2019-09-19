@@ -76,16 +76,7 @@ public class MapGenerator : MonoBehaviour
                     break;
                 case ImageReader.types.GHOSTSPAWN:
 					GameObject spawn = Instantiate(ghost_spawn, position, Quaternion.identity, transform);
-
-					foreach (GameObject ghost in GameObject.FindGameObjectsWithTag("Ghost"))
-					{
-						if (ghost.GetComponent<GhostMovement>().spawn_location == Vector3.zero)
-						{
-							ghost.transform.position = position;
-							ghost.GetComponent<GhostMovement>().spawn_location = spawn.transform.position + offset;
-						} 
-					}
-
+                    					
 					break;
                 case ImageReader.types.PELLET:
                     Instantiate(pellet_prefab, position, Quaternion.identity, transform);
@@ -101,7 +92,33 @@ public class MapGenerator : MonoBehaviour
             }
         }
 
-        foreach(GameObject wall in walls)
+		GameObject[] ghosts = GameObject.FindGameObjectsWithTag("Ghost");
+		GameObject[] spawns = GameObject.FindGameObjectsWithTag("Spawn");
+
+        for(int i = 0; i < ghosts.Length; ++i)
+		{
+			ghosts[i].transform.position = spawns[i].transform.position;
+			ghosts[i].GetComponent<GhostMovement>().spawn_location = spawns[i].transform.position + offset;
+		}
+
+        List<GameObject> dots = new List<GameObject>();
+        dots.AddRange(GameObject.FindGameObjectsWithTag("Pellet"));
+        dots.AddRange(GameObject.FindGameObjectsWithTag("Power Pellet"));
+
+        foreach (GameObject dot in dots)
+        {
+            foreach(GameObject dot_2 in dots)
+            {
+                float distance = Vector2.Distance(dot.transform.position, dot_2.transform.position);
+
+                if (distance == 1.0f)
+                {
+                    Instantiate(pellet_prefab, (dot.transform.position + dot_2.transform.position) / 2.0f, Quaternion.identity, transform);
+                }
+            }
+        }
+
+		foreach (GameObject wall in walls)
         {
             wall.GetComponent<WallResprite>().RecalculateWalls();
         }

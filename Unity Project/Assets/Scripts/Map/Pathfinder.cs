@@ -4,6 +4,15 @@ using UnityEngine;
 
 public class Pathfinder : MonoBehaviour
 {
+    public enum Directions
+    {
+        NONE = -1,
+        UP,
+        RIGHT,
+        DOWN,
+        LEFT
+    }
+
     private bool[,] traversable_map;
     private Texture2D map;
 
@@ -27,8 +36,72 @@ public class Pathfinder : MonoBehaviour
         }
     }
 
-    public Vector2 CalculateNextMove(Vector2 origin, Vector2 destination)
+    public Vector2 CalculateNextMoveInFrontOfTarget(
+        Vector2 origin,
+        Vector2 destination,
+        Directions direction = Directions.NONE,
+        int steps = 2)
     {
+        Vector2 directional = Vector2.zero;
+
+        switch (direction)
+        {
+            case Directions.NONE:
+                return CalculateNextMove(origin, destination);
+            case Directions.UP:
+                directional.y = 1;
+                break;
+            case Directions.RIGHT:
+                directional.x = 1;
+                break;
+            case Directions.DOWN:
+                directional.y = -1;
+                break;
+            case Directions.LEFT:
+                directional.x = -1;
+                break;
+        }
+
+        for (int i = 0; i < steps; ++i)
+        {
+            if ((int)(destination.x + directional.x) >= 0 &&
+                (int)(destination.y + directional.y) >= 0 &&
+                (int)(destination.x + directional.x) < map.width &&
+                (int)(destination.y + directional.y) < map.height)
+            {
+                if (traversable_map[(int)(destination.x + directional.x), (int)(destination.y + directional.y)])
+                    destination += directional;
+                else
+                    break;
+            }
+        }
+        return CalculateNextMove(origin, destination);
+    }
+
+    public Vector2 CalculateNextMove(Vector2 origin, Vector2 destination, Directions direction = Directions.NONE)
+    {
+        bool[,] new_map = new bool[map.width, map.height];
+        
+        for (int y = 0; y < map.height; ++y)
+            for (int x = 0; x < map.width; ++x)
+                new_map[x, y] = traversable_map[x, y];
+        
+        switch (direction)
+        {
+            case Directions.UP:
+                new_map[(int) origin.x, (int) origin.y - 1] = false;
+                break;
+            case Directions.RIGHT:
+                new_map[(int) origin.x - 1, (int) origin.y] = false;
+                break;
+            case Directions.DOWN:
+                new_map[(int) origin.x, (int) origin.y + 1] = false;
+                break;
+            case Directions.LEFT:
+                new_map[(int) origin.x + 1, (int) origin.y] = false;
+                break;
+        }
+
         // Initialise
         List<Node> open = new List<Node>();
         List<Node> closed = new List<Node>();
@@ -43,12 +116,12 @@ public class Pathfinder : MonoBehaviour
 
         if(!traversable_map[(int)current_node.position.x, (int)current_node.position.y])
         {
-            Debug.Log("Ghost is inside wall");
+            Debug.Log("Ghost is inside wall" + (int)destination.x + ", " + (int)destination.y);
             return Vector2.zero;
         }
         if(!traversable_map[(int)destination.x, (int)destination.y])
         {
-            Debug.Log("Destination inside wall");
+            Debug.Log("Destination inside wall: " + (int)destination.x + ", " + (int)destination.y);
             return Vector2.zero;
         }
 
@@ -95,7 +168,9 @@ public class Pathfinder : MonoBehaviour
                     (int)child.position.y < map.height)
                 {
                     if (traversable_map[(int)child.position.x, (int)child.position.y])
+                    {
                         children.Add(child);
+                    }
                 }
             }
 

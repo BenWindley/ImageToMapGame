@@ -176,8 +176,6 @@ public class PacManCornerMovement : MonoBehaviour
     {
         Vector3 direction = GetDirectionOffset(current_direction).normalized;
 
-        Debug.Log(direction);
-
         Vector3 position = GetCurrentTile();
 
         if (current_direction == Directions.NONE)

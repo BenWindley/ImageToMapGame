@@ -9,6 +9,7 @@ public class ScoreIncrease : MonoBehaviour
         if (col.tag == "Pac-Man")
         {
             // Increase Score
+            Camera.main.GetComponent<Score>().dots++;
             // Check end game
             Destroy(gameObject);
         }

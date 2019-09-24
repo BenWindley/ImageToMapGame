@@ -51,7 +51,7 @@ public class MapGenerator : MonoBehaviour
         for(int i = 0; i < types_array.Length; ++i)
         {
             int x = i % map.width;
-            int y = i / (map.height * 2);
+            int y = i / map.width;
 
             Vector3 position = new Vector3(x, y, 0) - offset;
 

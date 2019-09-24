@@ -19,6 +19,9 @@ public class FadeInMaterial : MonoBehaviour
 
     void Update ()
     {
+        if (!active)
+            return;
+
         if (delay > 0.0f)
         {
             delay -= Time.deltaTime;

@@ -10,6 +10,11 @@ public class Manager : MonoBehaviour
     public Countdown countdown;
     public LivesCounter lives_counter;
     public AudioClip opening_clip;
+    public FlashText enter_credit;
+
+    private bool started = false;
+
+    public List<FadeInMaterial> fade_ins;
 
 	public void DecreaseDots(int amount = 1)
     {
@@ -24,8 +29,13 @@ public class Manager : MonoBehaviour
         // Start countdown
         countdown.StartTimer();
 
+        foreach (FadeInMaterial f in fade_ins)
+            f.active = true;
+
         // Activate ghost and pac-man
         Invoke("Activate", 4.0f);
+
+        started = true;
     }
 
     private void ResetSequence()
@@ -42,7 +52,7 @@ public class Manager : MonoBehaviour
         // Deactivate entities
         Deactivate();
 
-        if(--lives > 0)
+        if (--lives > 0)
         {
             lives_counter.DecreaseLives();
             ResetSequence();
@@ -50,23 +60,26 @@ public class Manager : MonoBehaviour
         else
         {
             ExplodeGame();
+
+            // Pass score to end screen
+
+            // Load Menu
+            Invoke("GoToMenu", 5.0f);
         }
-
-        // Pass score to end screen
-
-        // Load Menu
-        Invoke("GoToMenu", 5.0f);
     }
 
     public void WinSequence()
     {
         Deactivate();
         ExplodeGame();
+
+        Invoke("GoToMenu", 5.0f);
     }
 
     public void GoToMenu()
     {
         // Load Menu
+        SceneManager.LoadScene(0);
     }
 
     public void ExplodeGame()
@@ -108,12 +121,23 @@ public class Manager : MonoBehaviour
             ghost.GetComponent<GhostMovement>().active = false;
         }
     }
-    
-    private void Start()
-    {
-        StartSequence();
 
-        AudioSource.PlayClipAtPoint(opening_clip, Vector3.zero);
+    private void Update()
+    {
+        if (Input.GetButtonDown("Select") && !started)
+        {
+            StartSequence();
+            enter_credit.stop = true;
+            AudioSource.PlayClipAtPoint(opening_clip, Vector3.zero);
+        }
+        if(Input.GetKeyDown(KeyCode.R))
+        {
+            SceneManager.LoadScene(0);
+        }
+        if(Input.GetKeyDown(KeyCode.Escape))
+        {
+            Application.Quit();
+        }
     }
 
     public void ResetEntities()

@@ -19,19 +19,23 @@ public class GhostMovement : MonoBehaviour
         DEAD
     }
 
+    public bool active = true;
+
     public Type type = Type.BLINKY;
     public State state = State.CHASE;
     public Vector3 scatter_destination = Vector3.zero;
     public Vector3 spawn_location = Vector3.zero;
     public Vector3 destination = Vector2.zero;
+    public AudioClip death_clip;
+
     private Vector3 map_offset = Vector3.zero;
     private MapGenerator generator;
     private Pathfinder path;
-    private Score score;
 
     private PacManCornerMovement pac_man;
     private GhostAnimator anim;
 
+    public float initial_timer = 0.0f;
     public float activation_timer = 0.0f;
     public int pinky_steps = 2;
     public float speed = 1.0f;
@@ -47,6 +51,11 @@ public class GhostMovement : MonoBehaviour
         speed = initial_speed * 0.25f;
         GetComponent<GhostAnimator>().scared = true;
 
+        pac_man.GetComponent<PacManAnimator>().audio_source.clip = pac_man.GetComponent<PacManAnimator>().scared_clip;
+
+        Camera.main.GetComponent<Score>().ResetStreak();
+
+        CancelInvoke("StopRun");
         Invoke("StopRun", 8.0f);
     }
 
@@ -54,6 +63,9 @@ public class GhostMovement : MonoBehaviour
     {
         state = State.CHASE;
         speed = initial_speed;
+
+        pac_man.GetComponent<PacManAnimator>().audio_source.clip = pac_man.GetComponent<PacManAnimator>().waka_clip;
+
         anim.scared = false;
     }
 
@@ -64,8 +76,29 @@ public class GhostMovement : MonoBehaviour
 
         CancelInvoke("StopRun");
         speed = death_speed;
+        AudioSource.PlayClipAtPoint(death_clip, Vector3.zero);
+
+        Camera.main.GetComponent<Score>().Eat();
 
         state = State.DEAD;
+    }
+
+    public void Reset()
+    {
+        speed = initial_speed;
+        anim.scared = false;
+        anim.dead = false;
+        GetComponent<BoxCollider>().enabled = true;
+        scatter_destination = GetRandomFreeTile();
+        activation_timer = initial_timer;
+
+        CancelInvoke("StopRun");
+
+        transform.position = spawn_location - generator.offset;
+        transform.GetChild(0).transform.localPosition = Vector3.zero;
+        destination = transform.position;
+
+        state = State.SCATTER;
     }
 
     private void Start()
@@ -75,18 +108,24 @@ public class GhostMovement : MonoBehaviour
         path = GameObject.FindGameObjectWithTag("Generator").GetComponent<Pathfinder>();
         pac_man = GameObject.FindGameObjectWithTag("Pac-Man").GetComponent<PacManCornerMovement>();
         anim = GetComponent<GhostAnimator>();
-        score = Camera.main.GetComponent<Score>();
 
         initial_speed = speed;
+        initial_timer = activation_timer;
         scatter_destination = GetRandomFreeTile();
     }
 
     void Update()
     {
-        if (Time.time < activation_timer)
-        {
+        if (!active)
             return;
-        }
+        if (pac_man.dead)
+            return;
+
+        activation_timer -= Time.deltaTime;
+
+        if (activation_timer > 0.0f)
+            return;
+        
         switch (state)
         {
             case State.SCATTER:

@@ -114,12 +114,13 @@ public class Pathfinder : MonoBehaviour
 
         Node current_node = open[0];
 
-        if(!traversable_map[(int)current_node.position.x, (int)current_node.position.y])
+        if(!new_map[(int)current_node.position.x, (int)current_node.position.y])
         {
             Debug.Log("Ghost is inside wall" + (int)destination.x + ", " + (int)destination.y);
             return Vector2.zero;
         }
-        if(!traversable_map[(int)destination.x, (int)destination.y])
+
+        if(!new_map[(int)destination.x, (int)destination.y])
         {
             Debug.Log("Destination inside wall: " + (int)destination.x + ", " + (int)destination.y);
             return Vector2.zero;
@@ -167,7 +168,7 @@ public class Pathfinder : MonoBehaviour
                     (int)child.position.y >= 0 &&
                     (int)child.position.y < map.height)
                 {
-                    if (traversable_map[(int)child.position.x, (int)child.position.y])
+                    if (new_map[(int)child.position.x, (int)child.position.y])
                     {
                         children.Add(child);
                     }

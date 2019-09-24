@@ -38,9 +38,20 @@ public class GhostAnimator : MonoBehaviour
     public SpriteRenderer sprite;
     public PacManAnimator pac_anim;
 
+    public void Reset()
+    {
+        timer = 0.0f;
+
+        sprite.sprite = left_sprites[0];
+
+        moving = true;
+        scared = false;
+        dead = false;
+    }
+
     private void Start()
     {
-        sprite = GetComponent<SpriteRenderer>();
+        sprite = transform.GetChild(0).GetComponent<SpriteRenderer>();
         previous_position = transform.position;
         pac_anim = GameObject.FindGameObjectWithTag("Pac-Man").GetComponent<PacManAnimator>();
     }
@@ -49,7 +60,21 @@ public class GhostAnimator : MonoBehaviour
     {
         if (pac_anim.dead)
             return;
+        if (!GetComponent<GhostMovement>().active)
+            return;
 
+        if(GetComponent<GhostMovement>().activation_timer > 0)
+        {
+            transform.GetChild(0).transform.localPosition = Vector3.up * Mathf.PingPong(Time.time * GetComponent<GhostMovement>().speed, 0.5f);
+        }
+        else
+        {
+            transform.GetChild(0).transform.localPosition = Vector3.MoveTowards(
+                transform.GetChild(0).transform.localPosition,
+                Vector3.zero,
+                Time.deltaTime * 0.5f
+                );
+        }
 
         timer += Time.deltaTime;
         alt_sprite = Mathf.RoundToInt(Mathf.PingPong(timer, 1.0f)) == 1;

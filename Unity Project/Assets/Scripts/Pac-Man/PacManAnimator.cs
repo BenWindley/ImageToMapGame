@@ -34,8 +34,10 @@ public class PacManAnimator : MonoBehaviour
 
     public Directions direction = Directions.LEFT;
 
-    private AudioSource audio_source;
+    public AudioSource audio_source;
     public AudioClip death_clip;
+    public AudioClip scared_clip;
+    public AudioClip waka_clip;
 
     void Start ()
     {
@@ -49,20 +51,40 @@ public class PacManAnimator : MonoBehaviour
         moving = false;
 
         audio_source.Stop();
-        audio_source.clip = death_clip;
-        audio_source.loop = false;
-        audio_source.Play();
+        AudioSource.PlayClipAtPoint(death_clip, transform.position);
     }
-	
-	void LateUpdate ()
+
+    public void Reset()
     {
+        dead = false;
+        direction = Directions.RIGHT;
+        moving = false;
+
+        sprite_renderer.sprite = left_sprites[0];
+
+        dead_counter = 0.0f;
+    }
+
+    void LateUpdate ()
+    {
+        if (!GetComponent<PacManCornerMovement>().active)
+        {
+            audio_source.Stop();
+            return;
+        }
         if(dead)
         {
             dead_counter += Time.deltaTime * dead_speed;
             sprite_renderer.sprite = death_sprites[Mathf.Clamp((int) Mathf.Floor(dead_counter), 0, death_sprites.Count - 1)];
 
+            if(dead_counter >= death_sprites.Count - 1)
+            {
+                Camera.main.GetComponent<Manager>().EndSequence();
+            }
+
             return;
         }
+
         if(moving)
         {
             animation_timer += Time.deltaTime * animation_speed;

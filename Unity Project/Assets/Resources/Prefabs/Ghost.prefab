@@ -25,7 +25,7 @@ GameObject:
   - component: {fileID: 54817506158494880}
   - component: {fileID: 114420682962989472}
   m_Layer: 2
-  m_Name: Blinky
+  m_Name: Ghost
   m_TagString: Ghost
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -82,10 +82,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8794d9a2d59d540ebabe9ff85fcdb5c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  active: 1
   type: 0
   state: 1
+  scatter_destination: {x: 0, y: 0, z: 0}
   spawn_location: {x: 0, y: 0, z: 0}
   destination: {x: 0, y: 0, z: 0}
+  initial_timer: 0
+  activation_timer: 0
+  pinky_steps: 2
   speed: 3
   death_speed: 5
 --- !u!114 &114420682962989472
@@ -146,7 +151,7 @@ SpriteRenderer:
   m_ReflectionProbeUsage: 1
   m_RenderingLayerMask: 4294967295
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: d03a2ddb9c2d64e61bcc2d5a246ec478, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

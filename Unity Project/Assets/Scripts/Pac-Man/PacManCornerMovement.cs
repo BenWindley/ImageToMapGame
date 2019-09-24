@@ -16,13 +16,24 @@ public class PacManCornerMovement : MonoBehaviour
     public Directions current_direction = Directions.NONE;
     public Directions next_direction = Directions.NONE;
 
+    public Vector3 spawn_position = Vector3.zero;
     public Vector3 offset;
 
     private PacManAnimator animator;
 
     public float speed = 1.0f;
 
+    public bool active = true;
     public bool dead = false;
+
+    public void Reset()
+    {
+        dead = false;
+        current_direction = Directions.NONE;
+        next_direction = Directions.NONE;
+
+        transform.position = spawn_position;
+    }
 
     private void Start()
     {
@@ -31,6 +42,8 @@ public class PacManCornerMovement : MonoBehaviour
 
     void Update ()
     {
+        if (!active)
+            return;
         if (dead)
             return;
 
@@ -137,13 +150,13 @@ public class PacManCornerMovement : MonoBehaviour
         Bounds pac_bounds = GetComponent<BoxCollider>().bounds;
         Bounds screen_bounds = Camera.main.GetComponent<CameraAdjustToWalls>().screen_region;
 
-        if (transform.position.x > screen_bounds.max.x)
+        if (transform.position.x >= screen_bounds.max.x)
             transform.position -= Vector3.right * screen_bounds.size.x;
-        if (transform.position.x + 0.5f < screen_bounds.min.x)
+        if (transform.position.x + 0.5f <= screen_bounds.min.x)
             transform.position += Vector3.right * screen_bounds.size.x;
-        if (transform.position.y > screen_bounds.max.y)
+        if (transform.position.y >= screen_bounds.max.y)
             transform.position -= Vector3.up * screen_bounds.size.y;
-        if (transform.position.y + 0.5f < screen_bounds.min.y)
+        if (transform.position.y + 0.5f <= screen_bounds.min.y)
             transform.position += Vector3.up * screen_bounds.size.y;
     }
 

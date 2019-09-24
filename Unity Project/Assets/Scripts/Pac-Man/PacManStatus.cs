@@ -17,11 +17,6 @@ public class PacManStatus : MonoBehaviour
                 {
                     GetComponent<PacManCornerMovement>().dead = true;
                     GetComponent<PacManAnimator>().PlayDeath();
-
-                    foreach (GameObject ghost in GameObject.FindGameObjectsWithTag("Ghost"))
-                    {
-                        ghost.GetComponent<GhostMovement>().enabled = false;
-                    }
                 }
                 break;
         }

@@ -73,7 +73,10 @@ public class MapGenerator : MonoBehaviour
                     GameObject.FindGameObjectWithTag("Pac-Man").transform.position =
                         position +
                         GameObject.FindGameObjectWithTag("Pac-Man").GetComponent<PacManCornerMovement>().offset;
-                    break;
+					GameObject.FindGameObjectWithTag("Pac-Man").GetComponent<PacManCornerMovement>().spawn_position =
+                        GameObject.FindGameObjectWithTag("Pac-Man").transform.position;
+
+					break;
                 case ImageReader.types.GHOSTSPAWN:
 					GameObject spawn = Instantiate(ghost_spawn, position, Quaternion.identity, transform);
                     					
@@ -104,6 +107,7 @@ public class MapGenerator : MonoBehaviour
         List<GameObject> dots = new List<GameObject>();
         dots.AddRange(GameObject.FindGameObjectsWithTag("Pellet"));
         dots.AddRange(GameObject.FindGameObjectsWithTag("Power Pellet"));
+        List<GameObject> added_dots = new List<GameObject>();
 
         foreach (GameObject dot in dots)
         {
@@ -113,7 +117,15 @@ public class MapGenerator : MonoBehaviour
 
                 if (distance == 1.0f)
                 {
-                    Instantiate(pellet_prefab, (dot.transform.position + dot_2.transform.position) / 2.0f, Quaternion.identity, transform);
+                    Vector3 position = (dot.transform.position + dot_2.transform.position) / 2.0f;
+                    bool skip = false;
+
+                    foreach (GameObject added_dot in added_dots)
+                        if (added_dot.transform.position == position)
+                            skip = true;
+
+                    if(!skip)
+                        added_dots.Add(Instantiate(pellet_prefab, position, Quaternion.identity, transform));
                 }
             }
         }
